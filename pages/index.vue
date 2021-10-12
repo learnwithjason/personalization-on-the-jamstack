@@ -1,34 +1,54 @@
 <template>
   <div class="container">
-    <div>
-      <Logo />
-      <h1 class="title">
-        personalization-on-the-jamstack
-      </h1>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-      </div>
-    </div>
+    <composition :composition="composition">
+      <template #default="{ parameters }">
+        <h1>{{ parameters.title.value }}</h1>
+        <slot-content slot-name="memories" key="memories" />
+      </template>
+    </composition>
   </div>
 </template>
 
 <script>
-export default {}
+import {
+  createContentfulEnhancer,
+  CANVAS_CONTENTFUL_PARAMETER_TYPES,
+} from '@uniformdev/canvas-contentful'
+import { enhance, EnhancerBuilder } from '@uniformdev/canvas'
+import { createClient } from 'contentful'
+
+export default {
+  async asyncData({ $uniformCanvasNuxt }) {
+    const { composition } = await $uniformCanvasNuxt.getCompositionBySlug({
+      slug: '/memories',
+    })
+
+    const client = createClient({
+      // NOTE: for production code ensure you use environment variables to configure Contentful, not hard-coded values.
+      space: 'f4xt4xefz3kw',
+      // only needed if not the default 'master' environment
+      environment: 'master',
+      accessToken: 'RorpOqT6gqHJppa0mptQGOEdtO3HBgkivY2f5YAeGp4',
+    })
+
+    const contentfulEnhancer = createContentfulEnhancer({ client })
+
+    // apply the enhancers to the composition data, enhancing it with external data
+    // in this case, the _value_ of the Contentful parameter you created is enhanced
+    // from the entry ID it is linked to, to the Contentful entry REST API response
+    // for that entry. You can create your own enhancers easily; they are a simple function.
+    await enhance({
+      composition,
+      enhancers: new EnhancerBuilder().parameterType(
+        CANVAS_CONTENTFUL_PARAMETER_TYPES,
+        contentfulEnhancer
+      ),
+      context: {},
+    })
+
+    return { composition }
+  },
+}
 </script>
 
 <style>
@@ -42,16 +62,8 @@ export default {}
 }
 
 .title {
-  font-family:
-    'Quicksand',
-    'Source Sans Pro',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
+  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   display: block;
   font-weight: 300;
   font-size: 100px;

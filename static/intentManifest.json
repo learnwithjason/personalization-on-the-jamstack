@@ -1,0 +1,43 @@
+{
+  "site": {
+    "sampleSize": 0,
+    "intents": [
+      {
+        "id": "javascript",
+        "signals": [
+          {
+            "type": "QS",
+            "freq": "visit",
+            "scope": "visitor",
+            "str": 50,
+            "value": {
+              "cs": false,
+              "expr": "js",
+              "type": "exact"
+            },
+            "parameter": "preference"
+          }
+        ]
+      },
+      {
+        "id": "animation",
+        "signals": [
+          {
+            "type": "QS",
+            "freq": "visit",
+            "scope": "visitor",
+            "str": 50,
+            "value": {
+              "cs": false,
+              "expr": "animation",
+              "type": "exact"
+            },
+            "parameter": "preference"
+          }
+        ]
+      }
+    ],
+    "enrichments": [],
+    "tests": []
+  }
+}
